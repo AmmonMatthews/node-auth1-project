@@ -1,4 +1,4 @@
-const bcrypt = require('bcryptjs')
+const bcrypt = require('bcrypt')
 const express = require('express')
 
 const Users = require('./user-modules.js')

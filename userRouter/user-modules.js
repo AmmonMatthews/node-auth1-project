@@ -19,6 +19,6 @@ function add(user){
 function findBy(id){
     return db('users')
     .select('id', 'username')
-    .where({ id })
+    .where( id )
     .first();
 }
