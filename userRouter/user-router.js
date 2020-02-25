@@ -6,28 +6,11 @@ const Users = require('./user-modules.js')
 const router = express.Router();
 
 router.get("/users", (req, res) => {
-    const {username, password} = req.headers
-    if(username && password){
-        Users.findBy({ username })
-        .first()
-        .then(user => {
-            if (user && bcrypt.compareSync(password, user.password)
-            ){
-                Users.find()
-                    .then(users => {
-                        res.status(200).json(users)
-                    })
-                    .catch(err => res.send(err));
-            } else {
-                res.status(401).json({ message: "Invalid Credentials" });
-            }
-        })
-        .catch(({ name, message, stack }) => {
-            res.status(500).json({ name, message, stack})
-        });
-    } else{
-        res.status(400).json({ error: "please provide credentials"})
-    }
+    Users.find()
+    .then(users => {
+        res.status(200).json(users)
+    })
+    .catch(err => res.send(err));
 })
 
 router.post("/register", (req, res) => {
@@ -52,6 +35,9 @@ router.post("/login", (req, res) => {
         .first()
         .then(user => {
             if (user && bcrypt.compareSync(password, user.password)){
+                req.session.loggiedIn = true;
+                req.session.username = user.username;
+
                 res.status(200).json({ message: `Welcome ${user.username}`});
             } else {
                 res.status(401).json({ message: "Invalid Credentials" });
@@ -61,5 +47,21 @@ router.post("/login", (req, res) => {
             res.status(500).json(error);
           });
 });
+
+router.get("/logout", (req, res) => {
+    if(req.session){
+        req.session.destroy(err => {
+            if (err) {
+                res.status(500).json({
+                    you: "can check out any time you like, but you can never leave"
+                });
+            } else {
+                res.status(200).json({ you: "logged out successfully"});
+            }
+        });
+    } else {
+        res.status(200).json({ bye: "felicia"})
+    }
+})
 
 module.exports = router
